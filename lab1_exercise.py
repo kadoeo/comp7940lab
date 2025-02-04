@@ -1,22 +1,23 @@
 def main():
 	print("Hello World")
 	x = 52633
-·	factors = []
+	factors = []
 	for i in range(x+1):
-		if x % i == 1:
-			factors.append(i)
+		if i > 0:
+			if x % i  == 0:
+				factors.append(i)
 	print(factors)
 
 def print_factor(x):
-·	factors = []
+	factors = []
 	for i in range(x+1):
-		if x % i == 1:
-			factors.append(i)
+		if i > 0:
+			if x % i == 0:
+				factors.append(i)
 	print(factors)
 
 def print_all_factor(l):
-·	factors = []
-	for x in l：
+	for x in l:
 		print_factor(x)
 
 
