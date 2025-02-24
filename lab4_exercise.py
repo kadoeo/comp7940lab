@@ -4,7 +4,7 @@ import configparser
 import logging
 import redis
 global redis1
-
+from ChatGPT_HKBU import HKBU_ChatGPT
 
 def main():
 	# Load your token and create an Updater for your Bot
@@ -34,6 +34,15 @@ def main():
 	# To start the bot:
 	updater.start_polling()
 	updater.idle()
+	# register a dispatcher to handle message: here we register an echo dispatcher
+	# echo_handler = MessageHandler(Filters.text & (~Filters.command), echo)
+	# dispatcher.add_handler(echo_handler)
+	# dispatcher for chatgpt
+	global chatgpt
+	chatgpt = HKBU_ChatGPT(config)
+	chatgpt_handler = MessageHandler(Filters.text & (~Filters.command),
+									 equiped_chatgpt)
+	dispatcher.add_handler(chatgpt_handler)
 
 
 def echo(update, context):
@@ -56,11 +65,19 @@ def add(update: Update, context: CallbackContext) -> None:
 		logging.info(context.args[0])
 		msg = context.args[0] # /add keyword <-- this should store the keyword
 		redis1.incr(msg)
-		
+
 		update.message.reply_text('You have said ' + msg + ' for ' +
 						redis1.get(msg).decode('UTF-8') + ' times.')
 	except (IndexError, ValueError):
 		update.message.reply_text('Usage: /add <keyword>')
+
+
+def equiped_chatgpt(update, context):
+		global chatgpt
+		reply_message = chatgpt.submit(update.message.text)
+		logging.info("Update: " + str(update))
+		logging.info("context: " + str(context))
+		context.bot.send_message(chat_id=update.effective_chat.id, text=reply_message)
 
 
 if __name__ == '__main__':
