@@ -22,10 +22,18 @@ def main():
 	# You can set this logging module, so you will know when
 	# and why things do not work as expected Meanwhile, update your config.ini as:
 	logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-					level=logging.INFO)
+			level=logging.INFO)
+
 	# register a dispatcher to handle message: here we register an echo dispatcher
-	echo_handler = MessageHandler(Filters.text & (~Filters.command), echo)
-	dispatcher.add_handler(echo_handler)
+	# echo_handler = MessageHandler(Filters.text & (~Filters.command), echo)
+	# dispatcher.add_handler(echo_handler)
+
+	# dispatcher for chatgpt
+	global chatgpt
+	chatgpt = HKBU_ChatGPT(config)
+	chatgpt_handler = MessageHandler(Filters.text & (~Filters.command),
+			    equiped_chatgpt)
+	dispatcher.add_handler(chatgpt_handler)
 
 	# on different commands - answer in Telegram
 	dispatcher.add_handler(CommandHandler("add", add))
@@ -34,15 +42,6 @@ def main():
 	# To start the bot:
 	updater.start_polling()
 	updater.idle()
-	# register a dispatcher to handle message: here we register an echo dispatcher
-	# echo_handler = MessageHandler(Filters.text & (~Filters.command), echo)
-	# dispatcher.add_handler(echo_handler)
-	# dispatcher for chatgpt
-	global chatgpt
-	chatgpt = HKBU_ChatGPT(config)
-	chatgpt_handler = MessageHandler(Filters.text & (~Filters.command),
-									 equiped_chatgpt)
-	dispatcher.add_handler(chatgpt_handler)
 
 
 def echo(update, context):
@@ -67,17 +66,17 @@ def add(update: Update, context: CallbackContext) -> None:
 		redis1.incr(msg)
 
 		update.message.reply_text('You have said ' + msg + ' for ' +
-						redis1.get(msg).decode('UTF-8') + ' times.')
+				redis1.get(msg).decode('UTF-8') + ' times.')
 	except (IndexError, ValueError):
 		update.message.reply_text('Usage: /add <keyword>')
 
 
 def equiped_chatgpt(update, context):
-		global chatgpt
-		reply_message = chatgpt.submit(update.message.text)
-		logging.info("Update: " + str(update))
-		logging.info("context: " + str(context))
-		context.bot.send_message(chat_id=update.effective_chat.id, text=reply_message)
+	global chatgpt
+	reply_message = chatgpt.submit(update.message.text)
+	logging.info("Update: " + str(update))
+	logging.info("context: " + str(context))
+	context.bot.send_message(chat_id=update.effective_chat.id, text=reply_message)
 
 
 if __name__ == '__main__':
