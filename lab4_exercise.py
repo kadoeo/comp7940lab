@@ -13,7 +13,7 @@ def main():
 	updater = Updater(token=(config['TELEGRAM']['ACCESS_TOKEN']), use_context=True)
 	dispatcher = updater.dispatcher
 	global redis1
-	redis1 = redis.Redis(host=(config['REDIS']['HOST']), password=(config['REDIS']['PASSWORD']), port=(config['REDIS']['REDISPORT']), decode_responses=(config['REDIS']['DECODE_RESPONSE']), username=(config['REDIS']['USER_NAME']))
+	redis1 = redis.Redis(host=(config['REDIS']['HOST']), password=(config['REDIS']['PASSWORD']), port=(config['REDIS']['REDISPORT']), decode_responses=(config['REDIS']['DECODE_RESPONSE']))
 
 	# You can set this logging module, so you will know when
 	# and why things do not work as expected Meanwhile, update your config.ini as:
@@ -67,8 +67,9 @@ def add(update: Update, context: CallbackContext) -> None:
 	    logging.info(context.args[0])
 	    msg = context.args[0] # /add keyword <-- this should store the keyword
 	    redis1.incr(msg)
+
 	    update.message.reply_text('You have said ' + msg + ' for ' +
-			    redis1.get(msg).decode('UTF-8') + ' times.')
+			    redis1.get(msg) + ' times.')
 	except (IndexError, ValueError):
 	    update.message.reply_text('Usage: /add <keyword>')
 
