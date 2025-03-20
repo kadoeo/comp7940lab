@@ -3,7 +3,9 @@
      push:
          branches:
              - main # change to main if needed
- jobs:
+env:
+    FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }} 
+jobs:
     deploy:
         name: Deploy app
         runs-on: ubuntu-latest
@@ -14,5 +16,3 @@
         - uses: superfly/flyctl-actions/setup-flyctl@master
         - run: flyctl auth login
         - run:  flyctl deploy --remote-only
-           env:
-               FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
